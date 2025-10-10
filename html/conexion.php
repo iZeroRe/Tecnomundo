@@ -1,9 +1,9 @@
 <?php
 
-$host     = "localhost";
+$host     = "db";
 $usuario  = "root";             
 $password = "root";               
-$base_datos = "nombre_de_tu_base_de_datos"; 
+$base_datos = "tecnomundo"; 
 
 
 $conexion = new mysqli($host, $usuario, $password, $base_datos);

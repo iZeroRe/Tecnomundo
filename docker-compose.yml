@@ -1,33 +1,35 @@
 version: '3.8'
 
 services:
-  # 1. SERVICIO DE APLICACIÓN WEB (Apache + PHP)
+  # 1. SERVICIO DE APLICACIÓN WEB (Apache + PHP 8.1 con extensiones)
   web:
-    image: php:8.2-apache # Usamos una imagen que ya incluye Apache y PHP 8.2
+    build: . # <--- CAMBIO AQUÍ. Construye la imagen desde el Dockerfile local
     ports:
-      - "80:80" # Mapea el puerto 80 de tu máquina al puerto 80 del contenedor
+      - "80:80"
     volumes:
-      - ./html:/var/www/html # Conecta la carpeta 'html' de tu PC al servidor web
+      - ./html:/var/www/html
     restart: unless-stopped
+    depends_on:
+      - db
 
   # 2. SERVICIO DE BASE DE DATOS (MariaDB/MySQL)
   db:
-    image: mariadb:10.5 # Versión estable de MariaDB (similar a la de XAMPP)
+    image: mariadb:10.5
     environment:
-      MARIADB_ROOT_PASSWORD: root # <--- ¡IMPORTANTE! Contraseña del usuario root.
+      MARIADB_ROOT_PASSWORD: root
       MARIADB_DATABASE: my_project_db
     volumes:
-      - ./db-data:/var/lib/mysql # Conecta la carpeta 'db-data' para persistencia de datos
+      - ./db-data:/var/lib/mysql
     restart: unless-stopped
 
   # 3. ADMINISTRADOR DE BASE DE DATOS (phpMyAdmin)
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     environment:
-      PMA_HOST: db # Nombre del servicio de la DB (el mismo que definimos arriba)
-      MYSQL_ROOT_PASSWORD: root # La misma contraseña que definiste para MARIADB_ROOT_PASSWORD
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - "8080:80" # Lo ponemos en el puerto 8080 para evitar conflictos con el servicio 'web'
+      - "8080:80"
     depends_on:
       - db
     restart: unless-stopped
