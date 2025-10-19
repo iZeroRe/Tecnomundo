@@ -1,4 +1,5 @@
 <?php
+// Modelo para productos tabla de nuestra BD
 // Incluimos el archivo de conexión
 include_once '../config/conexion.php'; 
 
