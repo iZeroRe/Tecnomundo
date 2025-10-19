@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: db
--- Tiempo de generación: 09-10-2025 a las 13:39:39
+-- Tiempo de generación: 19-10-2025 a las 19:34:11
 -- Versión del servidor: 10.5.29-MariaDB-ubu2004
 -- Versión de PHP: 8.3.26
 
@@ -363,6 +363,7 @@ CREATE TABLE `trabajador` (
   `direccion` varchar(100) NOT NULL,
   `num_direccion` varchar(10) NOT NULL,
   `especialidad` varchar(100) NOT NULL,
+  `rol` enum('admin','trabajador') NOT NULL DEFAULT 'trabajador',
   `id_empresa` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -370,15 +371,15 @@ CREATE TABLE `trabajador` (
 -- Volcado de datos para la tabla `trabajador`
 --
 
-INSERT INTO `trabajador` (`id_trabajador`, `contrasena`, `nombre`, `apellido`, `telefono`, `correo`, `direccion`, `num_direccion`, `especialidad`, `id_empresa`) VALUES
-(1, 'pass123', 'Juan', 'Pérez López', 331122344, 'juan.perez@cellfixgdl.com', 'Av. Juárez', '45A', 'Técnico de Hardware', 1),
-(2, 'pass123', 'Ana', 'García Martínez', 335566788, 'ana.garcia@cellfixgdl.com', 'Calle Ocampo', '112', 'Atención al Cliente', 1),
-(3, 'pass123', 'Carlos', 'Rodríguez Solís', 339987766, 'carlos.r@cellfixgdl.com', 'Calle Hidalgo', '87B', 'Técnico de Software', 1),
-(4, 'pass123', 'Sofía', 'Hernández Cruz', 551235678, 'sofia.h@tecnoshopcdmx.mx', 'Calle Madero', '230', 'Gerente de Tienda', 2),
-(5, 'pass123', 'Luis', 'Martínez Gómez', 558765321, 'luis.martinez@tecnoshopcdmx.mx', 'Av. Insurgentes', '1500', 'Ventas', 2),
-(6, 'pass123', 'Valeria', 'Chávez Ortiz', 554432211, 'valeria.c@tecnoshopcdmx.mx', 'Calle 5 de Mayo', '55', 'Técnico de Hardware', 2),
-(7, 'pass123', 'Diego', 'González Flores', 811123344, 'diego.g@regiomovil.com', 'Av. Lázaro Cárdenas', '2100', 'Ventas', 3),
-(8, 'pass123', 'Fernanda', 'Díaz Reyes', 815567788, 'fernanda.d@regiomovil.com', 'Calle Morelos', '845', 'Técnico Especialista Apple', 3);
+INSERT INTO `trabajador` (`id_trabajador`, `contrasena`, `nombre`, `apellido`, `telefono`, `correo`, `direccion`, `num_direccion`, `especialidad`, `rol`, `id_empresa`) VALUES
+(1, 'pass123', 'Juan', 'Pérez López', 331122344, 'juan.perez@cellfixgdl.com', 'Av. Juárez', '45A', 'Técnico de Hardware', 'admin', 1),
+(2, 'pass123', 'Ana', 'García Martínez', 335566788, 'ana.garcia@cellfixgdl.com', 'Calle Ocampo', '112', 'Atención al Cliente', 'trabajador', 1),
+(3, 'pass123', 'Carlos', 'Rodríguez Solís', 339987766, 'carlos.r@cellfixgdl.com', 'Calle Hidalgo', '87B', 'Técnico de Software', 'trabajador', 1),
+(4, 'pass123', 'Sofía', 'Hernández Cruz', 551235678, 'sofia.h@tecnoshopcdmx.mx', 'Calle Madero', '230', 'Gerente de Tienda', 'trabajador', 2),
+(5, 'pass123', 'Luis', 'Martínez Gómez', 558765321, 'luis.martinez@tecnoshopcdmx.mx', 'Av. Insurgentes', '1500', 'Ventas', 'admin', 2),
+(6, 'pass123', 'Valeria', 'Chávez Ortiz', 554432211, 'valeria.c@tecnoshopcdmx.mx', 'Calle 5 de Mayo', '55', 'Técnico de Hardware', 'trabajador', 2),
+(7, 'pass123', 'Diego', 'González Flores', 811123344, 'diego.g@regiomovil.com', 'Av. Lázaro Cárdenas', '2100', 'Ventas', 'trabajador', 3),
+(8, 'pass123', 'Fernanda', 'Díaz Reyes', 815567788, 'fernanda.d@regiomovil.com', 'Calle Morelos', '845', 'Técnico Especialista Apple', 'trabajador', 3);
 
 -- --------------------------------------------------------
 
