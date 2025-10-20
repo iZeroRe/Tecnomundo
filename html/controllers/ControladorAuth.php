@@ -1,63 +1,65 @@
 <?php
-include_once __DIR__ . '/../models/ModeloTrabajador.php';
-// inclusion del modelotrabajador para conectar
-//include_once '../models/ModeloTrabajador.php';
-// Error en caso de Login
-$error = ''; 
+// CONTROLADOR: Maneja la lógica de Autenticación
+include_once __DIR__ . '/../models/ModeloTrabajador.php'; 
 
-class ControladorAuth{
+$error = ''; // Variable global para pasar mensajes de error a la Vista
+
+class ControladorAuth {
     private $modelo_trabajador;
-    public function __construct(){
-        //Inicializacion para modelo trabajador conexion con DB
-    $this->modelo_trabajador = new ModeloTrabajador();
-     }
-     public function iniciarSesion(){
+    
+    public function __construct() {
+        // Inicialización del Modelo
+        $this->modelo_trabajador = new ModeloTrabajador();
+    }
+
+    public function iniciarSesion() {
         global $error;
-        session_start();
-        //En caso de que ya este en sesion se redirige
-        if(isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true) {
-            header("Location: index.php");
+        
+        // Redirigir si el usuario ya está logueado
+        if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true) {
+            header('Location: /index.php'); 
             exit();
-            }
-        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+        }
+
+        // Procesar el formulario (Método POST)
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            
             $this->modelo_trabajador->id_trabajador = isset($_POST['id_trabajador']) ? $_POST['id_trabajador'] : '';
             $this->modelo_trabajador->contrasena = isset($_POST['contrasena']) ? $_POST['contrasena'] : '';
 
             if (empty($this->modelo_trabajador->id_trabajador) || empty($this->modelo_trabajador->contrasena)) {
-                $error = "Por favor, ingresa tu ID y contraseña.";
-            }
+                 $error = "Por favor, ingresa tu ID y contraseña.";
+            } else {
 
-        else{
-            $datos_usuario = $this->modelo_trabajador->iniciarSesion();
+                $datos_usuario = $this->modelo_trabajador->iniciarSesion();
 
-            if ($datos_usuario) {
-                    // Autenticación Exitosa: Crear Sesión
-                    session_regenerate_id();
+                if ($datos_usuario) {
+                    //Autenticación Exitosa: Crear Sesión
+                    //Prueba session_regenerate_id(); // Opcional, pero buena práctica de seguridad
                     $_SESSION['is_logged_in'] = true;
                     $_SESSION['id_trabajador'] = $datos_usuario['id_trabajador'];
                     $_SESSION['user_name'] = $datos_usuario['nombre'] . ' ' . $datos_usuario['apellido'];
-                    $_SESSION['user_role'] = $datos_usuario['rol']; // La clave para la seguridad
+                    $_SESSION['user_role'] = $datos_usuario['rol']; 
                     
-                    // Redirigir al index.php
-                    header('Location: ../index.php'); 
-                    exit();
-        }
-            else {
+                    // Redirigir al Tablero (Ruta absoluta segura)
+                    header('Location: /index.php'); 
+                    exit(); // ¡CRUCIAL! Asegura que no se ejecute más código.
+                } else {
                     $error = "ID de empleado o contraseña incorrectos.";
                 }
+            }
         }
-     }
-        include_once '../views/login.php';
-}
-        public function cerrarSesion() {
+    }
+    
+    public function cerrarSesion() {
         session_start();
         session_unset(); 
         session_destroy(); 
-        header('Location: ../login.php'); 
+        header('Location: /login.php'); // Redirige al login de la raíz
         exit();
     }
 }
-// Decide si ejecutar iniciarSesion o cerrarSesion basándose en la URL, enrutamiento.
+
 $controlador = new ControladorAuth();
 $action = isset($_GET['action']) ? $_GET['action'] : 'iniciarSesion';
 
@@ -66,4 +68,6 @@ if ($action == 'cerrarSesion') {
 } else {
     $controlador->iniciarSesion();
 }
-?>
+
+// Si la lógica no redirigió (porque falló el login), cargamos la vista del formulario.
+include_once __DIR__ . '/../views/login.php';

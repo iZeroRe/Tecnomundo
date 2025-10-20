@@ -13,7 +13,7 @@ $error = isset($error) ? $error : '';
 <div>
     <h2>Inicio de Sesion</h2>
 
-    <from action="controllers/ControladorAuth.php" method="post">
+    <form action="/controllers/ControladorAuth.php" method="post">
         <div>
             <label for="id_trabajador">ID de Empleado:</label>
             <input type="number" name="id_trabajador" id="id_trabajador" required>

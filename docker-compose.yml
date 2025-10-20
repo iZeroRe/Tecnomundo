@@ -9,18 +9,29 @@ services:
     volumes:
       - ./html:/var/www/html
     restart: unless-stopped
+# <<<<<<<<< CÓDIGO CORREGIDO AQUÍ >>>>>>>>>>>>
     depends_on:
-      - db
+      db:  # 'db' debe ser una clave, no un elemento de lista (-)
+        condition: service_healthy 
+    # <<<<<<<<< FIN CÓDIGO CORREGIDO >>>>>>>>>>>>
 
   # 2. SERVICIO DE BASE DE DATOS (MariaDB/MySQL)
   db:
     image: mariadb:10.5
     environment:
       MARIADB_ROOT_PASSWORD: root
-      MARIADB_DATABASE: my_project_db
+      MARIADB_DATABASE: tecnomundo #cambio de nombre para la prueba 
     volumes:
       - ./db-data:/var/lib/mysql
+      - ./tecnomundo.sql:/docker-entrypoint-initdb.d/tecnomundo.sql #Prueba
     restart: unless-stopped
+    # <<<<<<<<< AÑADE ESTE BLOQUE >>>>>>>>>>>> Prueba
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p$$MARIADB_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 20s
+      retries: 10
+    # <<<<<<<<< FIN BLOQUE >>>>>>>>>>>> Pueba 
 
   # 3. ADMINISTRADOR DE BASE DE DATOS (phpMyAdmin)
   phpmyadmin:

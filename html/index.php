@@ -15,4 +15,3 @@ $es_admin = ($rol_actual === 'admin'); //En caso de no ser el admin simplemente 
 // En esta parte incluiremos lo que este en views
 
 
-?>
