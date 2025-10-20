@@ -1,7 +1,7 @@
 <?php
 include_once __DIR__ . '/../models/ModeloTrabajador.php';
 // inclusion del modelotrabajador para conectar
-include_once '../models/ModeloTrabajador.php';
+//include_once '../models/ModeloTrabajador.php';
 // Error en caso de Login
 $error = ''; 
 
@@ -13,7 +13,7 @@ class ControladorAuth{
      }
      public function iniciarSesion(){
         global $error;
-
+        session_start();
         //En caso de que ya este en sesion se redirige
         if(isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true) {
             header("Location: index.php");
