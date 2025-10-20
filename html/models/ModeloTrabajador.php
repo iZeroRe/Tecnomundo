@@ -1,6 +1,7 @@
 <?php
 //Modelo para los trabajadores
-include_once '../config/conexion.php';
+//include_once '../config/conexion.php'; Prueba
+include_once __DIR__ . '/../config/conexion.php';
 
 class ModeloTrabajador{
     private $conn;

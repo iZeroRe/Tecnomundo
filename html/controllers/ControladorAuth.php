@@ -1,5 +1,5 @@
 <?php
-session_start(); //Maneja login y logout
+include_once __DIR__ . '/../models/ModeloTrabajador.php';
 // inclusion del modelotrabajador para conectar
 include_once '../models/ModeloTrabajador.php';
 // Error en caso de Login
