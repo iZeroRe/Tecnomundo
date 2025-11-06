@@ -28,12 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // 4. Redirigir según el rol
         if ($usuario['rol'] === 'admin') {
-            header('Location: ../controllesrs/admin_dashboard.php');
+            header('Location: ../admin/dashboard.php');
         } elseif ($usuario['rol'] === 'trabajador') {
-            header('Location: ../controllesrs/trabajador_dashboard.php');
-        } else {
-            header('Location: ../controllesrs/default_dashboard.php'); 
-        }
+            header('Location: ../trabajador/dashboard.php');
+        } 
         exit(); 
         
     } else {
