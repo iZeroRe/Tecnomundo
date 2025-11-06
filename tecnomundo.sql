@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: db
--- Tiempo de generación: 19-10-2025 a las 19:34:11
+-- Tiempo de generación: 05-11-2025 a las 18:26:03
 -- Versión del servidor: 10.5.29-MariaDB-ubu2004
 -- Versión de PHP: 8.3.26
 
@@ -268,30 +268,63 @@ CREATE TABLE `producto` (
   `marca` varchar(100) NOT NULL,
   `modelo_compatible` varchar(100) NOT NULL,
   `tipo_producto` enum('repuesto','accesorio','dispositivo') NOT NULL,
-  `precio` decimal(10,0) NOT NULL
+  `precio` decimal(10,0) NOT NULL,
+  `stock` int(11) NOT NULL DEFAULT 0,
+  `min_stock` int(11) NOT NULL DEFAULT 5,
+  `nivel_alerta` enum('low','critical','normal') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+--
+-- Disparadores `producto`
+--
+DELIMITER $$
+CREATE TRIGGER `trg_before_producto_insert` BEFORE INSERT ON `producto` FOR EACH ROW BEGIN
+    -- Usa la misma lógica para productos nuevos
+    SET NEW.nivel_alerta = CASE
+        WHEN NEW.stock <= 3 THEN 'critical'
+        WHEN NEW.stock = 4 THEN 'low'
+        WHEN NEW.stock = 5 THEN 'low'
+        WHEN NEW.stock > 5 THEN 'normal'
+        ELSE NULL
+    END;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `trg_before_producto_update` BEFORE UPDATE ON `producto` FOR EACH ROW BEGIN
+    -- Define el 'nivel_alerta' basado en el nuevo stock
+    SET NEW.nivel_alerta = CASE
+        WHEN NEW.stock <= 3 THEN 'critical'
+        WHEN NEW.stock = 4 THEN 'low'
+        WHEN NEW.stock = 5 THEN 'low'
+        ELSE NULL -- Si es 6 o más, el campo es NULL (sin alerta)
+    END;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
 
 --
 -- Volcado de datos para la tabla `producto`
 --
 
-INSERT INTO `producto` (`id_producto`, `id_proveedor`, `nombre`, `marca`, `modelo_compatible`, `tipo_producto`, `precio`) VALUES
-(1, 1, 'Pantalla LCD + Táctil', 'Genérica', 'iPhone 11', 'repuesto', 1200),
-(2, 1, 'Batería Interna', 'OEM', 'Samsung Galaxy S20', 'repuesto', 851),
-(3, 1, 'Centro de Carga USB-C', 'Genérica', 'Varios', 'repuesto', 250),
-(4, 2, 'Funda de Silicón', 'Caseology', 'iPhone 13 Pro', 'accesorio', 350),
-(5, 2, 'Mica de Cristal Templado 9H', 'Spigen', 'Samsung Galaxy A52', 'accesorio', 280),
-(6, 2, 'Cargador de Pared 20W', 'Anker', 'Varios', 'accesorio', 450),
-(7, 3, 'Kit de Herramientas Reparación', 'iFixit', 'Universal', 'accesorio', 600),
-(8, 3, 'Cámara Trasera Principal', 'OEM', 'Xiaomi Redmi Note 10', 'repuesto', 750),
-(9, 4, 'Bocina Altavoz', 'Genérica', 'Moto G Power (2021)', 'repuesto', 220),
-(10, 4, 'Flexor de Encendido', 'OEM', 'iPhone XR', 'repuesto', 310),
-(11, 6, 'Pantalla OLED', 'OEM', 'Samsung Galaxy Note 20', 'repuesto', 3500),
-(12, 7, 'Audífonos Inalámbricos TWS', 'SoundPEATS', 'Universal', 'accesorio', 950),
-(13, 7, 'Xiaomi Redmi Note 12 Pro 256GB', 'Xiaomi', 'N/A', 'dispositivo', 6500),
-(14, 7, 'Samsung Galaxy S23 Ultra 512GB', 'Samsung', 'N/A', 'dispositivo', 25999);
-
--- --------------------------------------------------------
+INSERT INTO `producto` (`id_producto`, `id_proveedor`, `nombre`, `marca`, `modelo_compatible`, `tipo_producto`, `precio`, `stock`, `min_stock`, `nivel_alerta`) VALUES
+(1, 1, 'Pantalla LCD + Táctil', 'Genérica', 'iPhone 11', 'repuesto', 1200, 5, 5, 'low'),
+(2, 1, 'Batería Interna', 'OEM', 'Samsung Galaxy S20', 'repuesto', 851, 5, 5, 'low'),
+(3, 1, 'Centro de Carga USB-C', 'Genérica', 'Varios', 'repuesto', 250, 4, 5, 'low'),
+(4, 2, 'Funda de Silicón', 'Caseology', 'iPhone 13 Pro', 'accesorio', 350, 4, 5, 'low'),
+(5, 2, 'Mica de Cristal Templado 9H', 'Spigen', 'Samsung Galaxy A52', 'accesorio', 280, 0, 5, 'critical'),
+(6, 2, 'Cargador de Pared 20W', 'Anker', 'Varios', 'accesorio', 450, 6, 5, NULL),
+(7, 3, 'Kit de Herramientas Reparación', 'iFixit', 'Universal', 'accesorio', 600, 9, 5, NULL),
+(8, 3, 'Cámara Trasera Principal', 'OEM', 'Xiaomi Redmi Note 10', 'repuesto', 750, 4, 5, 'low'),
+(9, 4, 'Bocina Altavoz', 'Genérica', 'Moto G Power (2021)', 'repuesto', 220, 7, 5, NULL),
+(10, 4, 'Flexor de Encendido', 'OEM', 'iPhone XR', 'repuesto', 310, 0, 5, 'critical'),
+(11, 6, 'Pantalla OLED', 'OEM', 'Samsung Galaxy Note 20', 'repuesto', 3500, 0, 5, 'critical'),
+(12, 7, 'Audífonos Inalámbricos TWS', 'SoundPEATS', 'Universal', 'accesorio', 950, 0, 5, 'critical'),
+(13, 7, 'Xiaomi Redmi Note 12 Pro 256GB', 'Xiaomi', 'N/A', 'dispositivo', 6500, 0, 5, 'critical'),
+(14, 7, 'Samsung Galaxy S23 Ultra 512GB', 'Samsung', 'N/A', 'dispositivo', 25999, 0, 5, 'critical');
 
 --
 -- Estructura de tabla para la tabla `proveedor`
