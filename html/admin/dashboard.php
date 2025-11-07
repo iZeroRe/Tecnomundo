@@ -1,6 +1,21 @@
 <?php
-// 1. Incluimos nuestra conexión a la BD
-require_once '../config/conexion.php';
+session_start();
+
+// 1. Verificar si el usuario ha iniciado sesión
+if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
+    header('Location: /login.php'); // Redirigir a login si no está logueado
+    exit;
+}
+
+// 2. Verificar si el rol es 'admin'
+if ($_SESSION['user_rol'] !== 'admin') {
+    header('Location: ../trabajador/dashboard.php'); // Si es trabajador, a su dashboard
+    exit;
+}
+
+// --- Si el script llega aquí, es un admin validado ---
+require '../config/conexion.php';
+
 
 // 2. Ejecutamos todas las consultas para las tarjetas
 try {
@@ -352,19 +367,17 @@ try {
         <nav class="sidebar-nav">
             <ul>
                 <li><a href="#" class="active"><span>📊</span> Tablero</a></li>
-                <li><a href="#"><span>📦</span> Órdenes</a></li>
-                <li><a href="#"><span>💰</span> Ventas</a></li>
-                <li><a href="#"><span>👥</span> Clientes</a></li>
-                <li><a href="#"><span>🧾</span> Inventario</a></li>
-                <li><a href="#"><span>🧾</span> Facturación</a></li>
-                <li><a href="#"><span>📈</span> Reportes</a></li>
-                <li><a href="#"><span>🛡️</span> Garantías</a></li>
-                <li><a href="#"><span>🚚</span> Proveedores</a></li>
+                <li><a href="../common/ordenes.php"><span>📦</span> Órdenes</a></li>
+                <li><a href="ventas.php"><span>💰</span> Ventas</a></li>
+                <li><a href="../admin/clientes.php"><span>👥</span> Clientes</a></li>
+                <li><a href="../admin/inventario.php"><span>🧾</span> Inventario</a></li>
+                <li><a href="../common/garantias.php"><span>🛡️</span> Garantías</a></li>
+                <li><a href="../admin/proveedores.php"><span>🚚</span> Proveedores</a></li>
             </ul>
         </nav>
 
-        <div class="sidebar-footer">
-            <a href="#">
+<div class="sidebar-footer">
+            <a href="/controllers/logout.php">
                 <span>🚪</span> Cerrar sesión
             </a>
         </div>
@@ -481,3 +494,4 @@ try {
 
 </body>
 </html>
+
