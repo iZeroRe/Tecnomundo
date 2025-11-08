@@ -19,22 +19,64 @@ require '../config/conexion.php';
 
 // 2. Ejecutamos todas las consultas para las tarjetas
 try {
-    // Tarjeta 1: Órdenes activas (Contamos el total de reparaciones)
-    $stmt_ordenes = $pdo->query("SELECT COUNT(*) FROM reparacion");
+    // Tarjeta 1: Órdenes activas (Contamos el total de reparaciones) //(Prueba de consulta, dependiendo de la fecha activo o no) anterior  $stmt_ordenes = $pdo->query("SELECT COUNT(*) FROM reparacion");
+    $stmt_ordenes = $pdo->query("SELECT COUNT(*) FROM reparacion WHERE fecha_terminado >= CURDATE() OR fecha_terminado IS NULL");
     $total_ordenes = $stmt_ordenes->fetchColumn();
 
     // Tarjeta 2: Por entregar hoy (Reparaciones con fecha_terminado = hoy)
     $stmt_hoy = $pdo->query("SELECT COUNT(*) FROM reparacion WHERE fecha_terminado = CURDATE()");
     $total_hoy = $stmt_hoy->fetchColumn();
 
-    // Tarjeta 3: Reclamos (Contamos el total de garantías emitidas)
-    $stmt_reclamos = $pdo->query("SELECT COUNT(*) FROM garantia");
+    // Tarjeta 3: Reclamos (Contamos el total de garantías emitidas) //(Pueba) anterior  $stmt_reclamos = $pdo->query("SELECT COUNT(*) FROM garantia");
+    $stmt_reclamos = $pdo->query("SELECT COUNT(*) FROM garantia WHERE fecha_fin >= CURDATE()");
     $total_reclamos = $stmt_reclamos->fetchColumn();
 
     // Tarjeta 4: Ingresos del mes (Sumamos pagos de este mes y año)
     $stmt_ingresos = $pdo->query("SELECT SUM(monto_pago) as total_mes FROM pago WHERE MONTH(fecha_pago) = MONTH(CURDATE()) AND YEAR(fecha_pago) = YEAR(CURDATE())");
     $ingresos_mes = $stmt_ingresos->fetch();
     $total_ingresos = $ingresos_mes['total_mes'] ?? 0; // Usamos ?? 0 por si no hay pagos
+
+    //(Prueba de graficas)
+// Gráfica 1: Actividad Semanal (Órdenes creadas en los últimos 7 días)
+    $stmt_semanal = $pdo->query("
+        SELECT 
+            DATE(fecha_ingreso) as dia, 
+            COUNT(*) as total 
+        FROM reparacion 
+        WHERE fecha_ingreso >= CURDATE() - INTERVAL 6 DAY
+        GROUP BY dia
+        ORDER BY dia ASC
+    ");
+    $actividad_semanal = $stmt_semanal->fetchAll(PDO::FETCH_ASSOC);
+
+    // Procesar datos para que siempre haya 7 días (Lunes, Martes, ...)
+    $labels_semana = [];
+    $data_semana = [];
+    // Un array asociativo para guardar los totales por fecha
+    $datos_por_fecha = array_column($actividad_semanal, 'total', 'dia');
+
+    for ($i = 6; $i >= 0; $i--) {
+        $fecha = date('Y-m-d', strtotime("-$i days"));
+        // Usamos 'D d' para formato "Lun 04", "Mar 05", etc.
+        $labels_semana[] = date('D d', strtotime($fecha)); 
+        // Si no hubo registros en esa fecha, usamos 0
+        $data_semana[] = $datos_por_fecha[$fecha] ?? 0;
+    }
+
+
+    // Gráfica 2: Distribución de Productos (Repuestos vs Accesorios vs Dispositivos)
+    $stmt_distribucion = $pdo->query("
+        SELECT tipo_producto, COUNT(*) as total
+        FROM producto
+        GROUP BY tipo_producto
+    ");
+    $distribucion_productos = $stmt_distribucion->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Separamos las etiquetas (labels) y los datos (data) para Chart.js
+    $labels_productos = array_column($distribucion_productos, 'tipo_producto');
+    $data_productos = array_column($distribucion_productos, 'total');
+    // --- Final de las graficas (Prueba) ---
+
 
 } catch (\PDOException $e) {
     // Manejo simple de errores
@@ -356,6 +398,9 @@ try {
             color: var(--color-texto-secundario);
         }
     </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> (Prueba)
+
 </head>
 <body>
         
@@ -436,19 +481,18 @@ try {
             <div class="main-chart-area">
                 <div class="card">
                     <h2 class="card-header">Actividad semanal</h2>
-                    <div class="chart-placeholder">
-                                                <p>(Aquí se necesita JavaScript para la gráfica)</p>
-                    </div>
+                    <div class="chart-container" style="position: relative; height:350px;"> <!-- Prueba de graficas -->
+                        <canvas id="actividadSemanalChart"></canvas>
+                            </div>
                 </div>
             </div>
 
             <div class="right-sidebar">
                 
-                <div class="card">
-                    <div class="pie-chart-placeholder">
-                                                <p>(Aquí se necesita JavaScript para la gráfica)</p>
-                    </div>
-                </div>
+                <h2 class="card-header">Distribución de productos</h2>
+                        <div class="chart-container" style="position: relative; height:200px;"> <!-- Prueba de grafica -->
+                             <canvas id="distribucionProductosChart"></canvas>
+                        </div>
                 
                 <div class="card">
                     <h2 class="card-header">Alertas de inventario</h2>
@@ -491,7 +535,72 @@ try {
         </section>
 
     </main>
+   <script>
+    // Usamos 'DOMContentLoaded' para asegurarnos de que el HTML este cargado
+    document.addEventListener('DOMContentLoaded', function () {
+        
+        // Grafica 1
+        
+        // Obtenemos el 'contexto' del canvas (el lienzo donde vamos a dibujar)
+        const ctxSemanal = document.getElementById('actividadSemanalChart');
 
+        // Verificamos que el elemento exista antes de crear la grafica
+        if (ctxSemanal) {
+            new Chart(ctxSemanal, {
+                type: 'line', // Tipo de grafica
+                data: {
+                    // Aquí 'inyectamos' los datos desde PHP a JavaScript
+                    // json_encode convierte el array de PHP en un array de JS
+                    labels: <?php echo json_encode($labels_semana); ?>,
+                    datasets: [{
+                        label: 'Órdenes Creadas',
+                        data: <?php echo json_encode($data_semana); ?>,
+                        fill: false,
+                        borderColor: '#0d6efd', // Usamos tu color primario
+                        tension: 0.1 // Suaviza la línea
+                    }]
+                },
+                options: {
+                    responsive: true, // Hace que la gráfica se ajuste al contenedor
+                    maintainAspectRatio: false, // Permite que la altura sea personalizada
+                    scales: {
+                        y: {
+                            beginAtZero: true // El eje Y empieza en 0
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Grafica 2 ---
+        
+        const ctxDistribucion = document.getElementById('distribucionProductosChart');
+        
+        if (ctxDistribucion) {
+            new Chart(ctxDistribucion, {
+                type: 'doughnut', // Tipo de grafica de dona
+                data: {
+                    // Inyectamos los datos de productos
+                    labels: <?php echo json_encode($labels_productos); ?>,
+                    datasets: [{
+                        label: 'Cantidad de Productos',
+                        data: <?php echo json_encode($data_productos); ?>,
+                        backgroundColor: [ // Colores para cada segmento
+                            '#0d6efd', // Azul
+                            '#6c757d', // Gris
+                            '#f59e0b'  // Amarillo
+                        ],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                }
+            });
+        }
+    });
+    </script>
 </body>
 </html>
 
