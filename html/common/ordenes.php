@@ -145,6 +145,7 @@ try {
             font-weight: 500;
             cursor: pointer;
             font-size: 14px;
+            text-decoration: none;
         }
         .btn-primary:hover { background-color: #0b5ed7; }
         
@@ -240,7 +241,7 @@ try {
                 <div class="search-bar">
                     <input type="text" placeholder="Buscar orden, cliente, IMEI...">
                 </div>
-                <button class="btn-primary">+ Nueva orden</button>
+               <a href="../admin/nueva_orden.php" class="btn-primary">+ Nueva orden</a>
             </div>
         </header>
 
