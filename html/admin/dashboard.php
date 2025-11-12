@@ -92,8 +92,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Administración</title>
     <style>
-        /* (Todo tu CSS de la respuesta anterior va aquí) */
-        /* --- Reseteo Básico y Fuentes --- */
+        /* CCS general */
         :root {
             --color-primario: #0d6efd; /* Azul para el botón */
             --color-fondo: #f8f9fa;
@@ -240,6 +239,7 @@ try {
             font-weight: 500;
             cursor: pointer;
             font-size: 14px;
+            text-decoration: none;
         }
         
         .btn-primary:hover {
@@ -436,7 +436,7 @@ try {
                 <div class="search-bar">
                     <input type="text" placeholder="Buscar orden, cliente, IMEI...">
                 </div>
-                <button class="btn-primary">+ Nueva orden</button>
+                <a href="nueva_orden.php" class="btn-primary">+ Nueva orden</a>
             </div>
         </header>
 
@@ -572,7 +572,7 @@ try {
             });
         }
 
-        // --- Grafica 2 ---
+        // Grafica 2
         
         const ctxDistribucion = document.getElementById('distribucionProductosChart');
         
