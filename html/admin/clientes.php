@@ -263,7 +263,7 @@ try {
                                     <td><?php echo htmlspecialchars($cliente['direccion'] . ' ' . $cliente['num_direccion']); ?></td>
                                     <td><?php echo htmlspecialchars($cliente['nombre_empresa']); ?></td>
                                     <td>
-                                        <a href="#" class="btn-edit">Editar</a>
+                                        <a href="editar_cliente.php?id=<?php echo $cliente['id_cliente']; ?>" class="btn-edit">Editar</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
