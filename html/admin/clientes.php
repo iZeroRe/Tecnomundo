@@ -227,7 +227,7 @@ try {
                 <div class="search-bar">
                     <input type="text" placeholder="Buscar por nombre, correo...">
                 </div>
-                <button class="btn-primary">+ Nuevo Cliente</button>
+                <a href="nuevo_cliente.php" class="btn-primary">+ Nuevo Cliente</a>
             </div>
         </header>
 
