@@ -55,7 +55,7 @@ $stmt->execute(([
 ]));
 $pdo->commit();
 // Mensaje de exito
-$_SESSION['success_message'] = "Actualizacion Exitosa" . htmlspecialchars($nombre) . " " . htmlspecialchars($apellido) . "' actualizado con éxito";
+$_SESSION['success_message'] = "Actualizacion Exitosa " . htmlspecialchars($nombre) . " " . htmlspecialchars($apellido) . "' actualizado con éxito";
 header('Location: ../admin/clientes.php');
 exit;
 }

@@ -138,6 +138,20 @@ try {
             transform: translateY(-50%);
             color: var(--color-texto-secundario);
         }
+        .btn-primary {
+             background-color: var(--color-primario);
+            color: var(--color-blanco);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none; /* Esto quita el subrayado */
+        }
+.btn-primary:hover {
+    background-color: #0b5ed7;
+}
         
         /* Contenedor principal para la tabla */
         .card {
