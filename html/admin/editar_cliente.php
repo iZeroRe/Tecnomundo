@@ -107,8 +107,7 @@ try {
                 <li><a href="dashboard.php"><span>📊</span> Tablero</a></li>
                 <li><a href="../common/ordenes.php"><span>📦</span> Órdenes</a></li>
                 <li><a href="ventas.php"><span>💰</span> Ventas</a></li>
-                <li-
-                >a href="clientes.php" class="active"><span>👥</span> Clientes</a></li>
+                <li><a href="clientes.php" class="active"><span>👥</span> Clientes</a></li>
                 <li><a href="inventario.php"><span>🧾</span> Inventario</a></li>
                 <li><a href="../common/garantias.php"><span>🛡️</span> Garantías</a></li>
                 <li><a href="../admin/proveedores.php"><span>🚚</span> Proveedores</a></li>
@@ -124,6 +123,15 @@ try {
         <header class="main-header">
             <h1>Editar Cliente</h1>
         </header>
+            <?php 
+        if (isset($_SESSION['error_message'])) {
+            // Este div mostrar mensjase de erro
+            echo '<div style="background-color: #fdeded; color: #b91c1c; border: 1px solid #f8b4b4; padding: 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">';
+            echo htmlspecialchars($_SESSION['error_message']);
+            echo '</div>';
+            unset($_SESSION['error_message']); //Limpia el ms
+        }
+        ?>
 
         <div class="card">
             <form action="../controllers/actualizar_cliente.php" method="POST">

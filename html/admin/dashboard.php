@@ -418,6 +418,7 @@ try {
                 <li><a href="../admin/inventario.php"><span>🧾</span> Inventario</a></li>
                 <li><a href="../common/garantias.php"><span>🛡️</span> Garantías</a></li>
                 <li><a href="../admin/proveedores.php"><span>🚚</span> Proveedores</a></li>
+                <li><a href="../admin/trabajadores.php"><span>👨</span> Trabajadores</a></li>
             </ul>
         </nav>
 

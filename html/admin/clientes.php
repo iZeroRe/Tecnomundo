@@ -230,6 +230,15 @@ try {
                 <a href="nuevo_cliente.php" class="btn-primary">+ Nuevo Cliente</a>
             </div>
         </header>
+        <?php 
+        if (isset($_SESSION['success_message'])) {
+            //Para el mensaje de exito
+            echo '<div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">';
+            echo htmlspecialchars($_SESSION['success_message']);
+            echo '</div>';
+            unset($_SESSION['success_message']); // Limpia el men
+        }
+        ?>
 
         <section class="clientes-content">
             <div class="card">
