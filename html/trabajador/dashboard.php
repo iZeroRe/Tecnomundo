@@ -367,6 +367,7 @@ try {
         <nav class="sidebar-nav">
             <ul>
                 <li><a href="#" class="active"><span>📊</span> Tablero</a></li>
+                                <li><a href="ventas.php"><span>💰</span>Nueva Venta</a></li>
                 <li><a href="../common/ordenes.php"><span>📦</span> Órdenes</a></li>
                 <li><a href="../common/garantias.php"><span>🛡️</span> Garantías</a></li>
             </ul>
@@ -387,7 +388,7 @@ try {
                 <div class="search-bar">
                     <input type="text" placeholder="Buscar orden, cliente, IMEI...">
                 </div>
-                <button class="btn-primary">+ Nueva orden</button>
+                               <a href="../admin/nueva_orden.php" class="btn-primary">+ Nueva orden</a>
             </div>
         </header>
 
