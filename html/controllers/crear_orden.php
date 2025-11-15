@@ -2,13 +2,13 @@
 session_start();
 require '../config/conexion.php';
 
-//1 Verificar inicio de sesion
+//Verificar inicio de sesion
 if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true || $_SESSION['user_rol'] !== 'admin') {
     // Si no es admin, lo sacamos.
     header('Location: /login.php');
     exit;
 }
-//2 Verificar que los datos se hayan enviado por POST
+//Verificar que los datos se hayan enviado por POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     // Si alguien intenta acceder a este archivo escribiendo la URL, lo sacamos.
     die("Acceso no autorizado.");

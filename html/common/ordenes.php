@@ -209,6 +209,29 @@ try {
         .btn-pdf:hover {
             background-color: #c82333;
         }
+
+        /* Boton de Cobrar */
+        .acciones-cell {
+    /* Esto hace que los botones no se separen si la celda es ancha */
+    display: flex;
+    gap: 8px; /* Espacio entre botones */
+}
+
+.btn-cobrar {
+    display: inline-block;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #fff;
+    background-color: #198754; /* Verde para "Cobrar" */
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    text-align: center;
+}
+.btn-cobrar:hover {
+    background-color: #157347; /* Verde más oscuro */
+}
     </style>
     </style>
 </head>
@@ -246,6 +269,23 @@ try {
         </header>
 
         <section class="orders-content">
+            <?php 
+    // Mensaje de Cobro de la orden 
+    if (isset($_SESSION['success_message'])) {
+        echo '<div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">';
+        echo htmlspecialchars($_SESSION['success_message']);
+        echo '</div>';
+        unset($_SESSION['success_message']);
+    }
+
+    // Mensaje en caso de que ya fuera cobrada esa orden 
+    if (isset($_SESSION['error_message'])) {
+        echo '<div style="background-color: #fdeded; color: #b91c1c; border: 1px solid #f8b4b4; padding: 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">';
+        echo htmlspecialchars($_SESSION['error_message']);
+        echo '</div>';
+        unset($_SESSION['error_message']);
+    }
+    ?>
             <div class="card">
                 <h2 class="card-header">Historial de Órdenes</h2>
                 
@@ -258,7 +298,7 @@ try {
                             <th>Técnico</th>
                             <th>Fecha Ingreso</th>
                             <th>Costo</th>
-                            <th>Generar Factura</th> </tr>
+                            <th>Acciones</th> </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($ordenes)): ?>
@@ -273,10 +313,14 @@ try {
                                     <td><?php echo htmlspecialchars($orden['tecnico_nombre'] . ' ' . $orden['tecnico_apellido']); ?></td>
                                     <td><?php echo htmlspecialchars($orden['fecha_ingreso']); ?></td>
                                     <td>$<?php echo number_format($orden['costo'], 2); ?></td>
-                                    <td>
+                                    <td class="acciones-cell"> 
                                         <a href="../common/generar_factura.php?id=<?php echo $orden['id_reparacion']; ?>" 
-                                           class="btn-pdf" 
-                                           target="_blank">PDF</a>
+                                        class="btn-pdf" 
+                                        target="_blank">PDF</a>
+                                        <a href="../controllers/registrar_pago_y_garantia.php?reparacion_id=<?php echo $orden['id_reparacion']; ?>" 
+                                        class="btn-cobrar">
+                                        Cobrar
+                                        </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

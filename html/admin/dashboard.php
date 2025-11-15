@@ -460,10 +460,10 @@ try {
             </div>
             
             <div class="stat-card">
-                <div class="icon">⚠️</div>
+                <div class="icon">🛡️</div>
                 <div class="info">
                     <h3><?php echo $total_reclamos; ?></h3>
-                    <p>Reclamos</p>
+                    <p>Garantias Activas</p>
                 </div>
             </div>
             

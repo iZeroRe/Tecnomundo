@@ -186,6 +186,28 @@ try {
         .data-table tbody tr:hover {
             background-color: #e9ecef;
         }
+        /* CSS para boton de pago */
+        .acciones-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-cobrar {
+            display: inline-block;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #fff;
+            background-color: #198754; /* Verde */
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            text-align: center;
+        }
+        .btn-cobrar:hover {
+            background-color: #157347;
+        }
+
     </style>
 </head>
 <body>
@@ -226,7 +248,23 @@ try {
                <a href="venta_nueva.php" class="btn-primary">+ Nueva Venta</a>
             </div>
         </header>
-
+        <?php 
+        // Mensaje para confirmar que se hizo el cobro
+        if (isset($_SESSION['success_message'])) {
+            echo '<div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">';
+            echo htmlspecialchars($_SESSION['success_message']);
+            echo '</div>';
+            unset($_SESSION['success_message']);
+        }
+        
+        // Mensseje de que ya fue cobrada esa venta
+        if (isset($_SESSION['error_message'])) {
+            echo '<div style="background-color: #fdeded; color: #b91c1c; border: 1px solid #f8b4b4; padding: 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">';
+            echo htmlspecialchars($_SESSION['error_message']);
+            echo '</div>';
+            unset($_SESSION['error_message']);
+        }
+        ?>
         <section class="ventas-content">
             <div class="card">
                 <h2 class="card-header">Historial de Ventas</h2>
@@ -239,12 +277,13 @@ try {
                             <th>Productos Vendidos</th>
                             <th>Fecha</th>
                             <th>Total</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($ventas)): ?>
                             <tr>
-                                <td colspan="5" style="text-align: center;">No se encontraron ventas registradas.</td>
+                                <td colspan="6" style="text-align: center;">No se encontraron ventas registradas.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($ventas as $venta): ?>
@@ -254,6 +293,12 @@ try {
                                     <td><?php echo htmlspecialchars($venta['productos_vendidos'] ?? 'N/A'); ?></td>
                                     <td><?php echo htmlspecialchars($venta['fecha_venta']); ?></td>
                                     <td>$<?php echo number_format($venta['total'], 2); ?></td>
+                                    <td class="acciones-cell">
+                                        <a href="../controllers/registrar_pago_venta.php?venta_id=<?php echo $venta['id_venta']; ?>" 
+                                        class="btn-cobrar">
+                                        Cobrar
+                                        </a>
+                                </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
