@@ -101,16 +101,10 @@ try {
         
     <aside class="sidebar">
         <div class="sidebar-header">Admin</div>
-        <nav class="sidebar-nav">
+          <nav class="sidebar-nav">
             <ul>
-                <li><a href="dashboard.php"><span>📊</span> Tablero</a></li>
-                <li><a href="../common/ordenes.php"><span>📦</span> Órdenes</a></li>
-                <li><a href="ventas.php"><span>💰</span> Ventas</a></li>
-                <li><a href="clientes.php"><span>👥</span> Clientes</a></li>
-                <li><a href="inventario.php"><span>🧾</span> Inventario</a></li>
-                <li><a href="../common/garantias.php"><span>🛡️</span> Garantías</a></li>
-                <li><a href="proveedores.php"><span>🚚</span> Proveedores</a></li>
-                <li><a href="trabajadores.php" class="active"><span>👨</span> Trabajadores</a></li>
+                <li><a href="javascript:history.back()">🔙 Volver atrás</a></li>
+
             </ul>
         </nav>
         <div class="sidebar-footer">

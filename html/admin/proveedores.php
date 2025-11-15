@@ -201,13 +201,13 @@ try {
 
         <nav class="sidebar-nav">
             <ul>
-                <li><a href="#" class="active"><span>📊</span> Tablero</a></li>
-                <li><a href="../common/ordenes.php"><span>📦</span> Órdenes</a></li>
+                <li><a href="../admin/dashboard.php"><span>📊</span> Tablero</a></li>
+                <li><a href="../common/ordenes.php" ><span>📦</span> Órdenes</a></li>
                 <li><a href="ventas.php"><span>💰</span> Ventas</a></li>
                 <li><a href="../admin/clientes.php"><span>👥</span> Clientes</a></li>
                 <li><a href="../admin/inventario.php"><span>🧾</span> Inventario</a></li>
                 <li><a href="../common/garantias.php"><span>🛡️</span> Garantías</a></li>
-                <li><a href="../admin/proveedores.php"><span>🚚</span> Proveedores</a></li>
+                <li><a href="../admin/proveedores.php"  class="active"><span>🚚</span> Proveedores</a></li>
                 <li><a href="../admin/trabajadores.php"><span>👨</span> Trabajadores</a></li>
             </ul>
         </nav>
@@ -227,7 +227,9 @@ try {
                 <div class="search-bar">
                     <input type="text" placeholder="Buscar por nombre, empresa...">
                 </div>
-                <button class="btn-primary">+ Nuevo Proveedor</button>
+
+<a href="proveedor_agregar.php" class="btn-primary">+ Nuevo Proveedor</a>
+
             </div>
         </header>
 
@@ -265,7 +267,7 @@ try {
                                     <td><?php echo htmlspecialchars($proveedor['pieza_accesorio']); ?></td>
                                     <td><?php echo htmlspecialchars($proveedor['nombre_empresa']); ?></td>
                                     <td>
-                                        <a href="#" class="btn-edit">Editar</a>
+                                        <a href="proveedor_editar.php?id=<?php echo $proveedor['id_proveedor']; ?>" class="btn-edit">Editar</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

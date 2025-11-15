@@ -6,11 +6,7 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     header('Location: /login.php');
     exit;
 }
-//2 Veficar el rol
-if ($_SESSION['user_rol'] !== 'admin') {
-    header('Location: ../trabajador/dashboard.php'); // Si es trabajador, a su dashboard
-    exit;
-}
+
 
 require '../config/conexion.php';
 
@@ -246,15 +242,10 @@ catch (\PDOException $e) {
         <div class="sidebar-header">
             Admin
         </div>
-        <nav class="sidebar-nav">
+          <nav class="sidebar-nav">
             <ul>
-                <li><a href="dashboard.php" class="active"><span>📊</span> Tablero</a></li>
-                <li><a href="../common/ordenes.php"><span>📦</span> Órdenes</a></li>
-                <li><a href="ventas.php"><span>💰</span> Ventas</a></li>
-                <li><a href="../admin/clientes.php"><span>👥</span> Clientes</a></li>
-                <li><a href="../admin/inventario.php"><span>🧾</span> Inventario</a></li>
-                <li><a href="../common/garantias.php"><span>🛡️</span> Garantías</a></li>
-                <li><a href="../admin/proveedores.php"><span>🚚</span> Proveedores</a></li>
+                <li><a href="javascript:history.back()">🔙 Volver atrás</a></li>
+
             </ul>
         </nav>
 

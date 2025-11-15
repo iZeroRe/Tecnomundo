@@ -189,6 +189,21 @@ try {
         .data-table tbody tr.critical td {
              font-weight: 600; /* Texto en negrita para crítico */
         }
+        .btn-edit {
+            display: inline-block;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #fff;
+            background-color: #0d6efd; /* Azul */
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            text-align: center;
+        }
+        .btn-edit:hover {
+            background-color: #0b5ed7;
+        }
     </style>
 </head>
 <body>
@@ -200,11 +215,11 @@ try {
 
        <nav class="sidebar-nav">
             <ul>
-                <li><a href="#" class="active"><span>📊</span> Tablero</a></li>
+                <li><a href="../admin/dashboard.php"><span>📊</span> Tablero</a></li>
                 <li><a href="../common/ordenes.php"><span>📦</span> Órdenes</a></li>
                 <li><a href="ventas.php"><span>💰</span> Ventas</a></li>
                 <li><a href="../admin/clientes.php"><span>👥</span> Clientes</a></li>
-                <li><a href="../admin/inventario.php"><span>🧾</span> Inventario</a></li>
+                <li><a href="../admin/inventario.php"  class="active"><span>🧾</span> Inventario</a></li>
                 <li><a href="../common/garantias.php"><span>🛡️</span> Garantías</a></li>
                 <li><a href="../admin/proveedores.php"><span>🚚</span> Proveedores</a></li>
                 <li><a href="../admin/trabajadores.php"><span>👨</span> Trabajadores</a></li>
@@ -226,7 +241,7 @@ try {
                 <div class="search-bar">
                     <input type="text" placeholder="Buscar por nombre, marca, ID...">
                 </div>
-                <button class="btn-primary">+ Nuevo Producto</button>
+                <a href="producto_agregar.php" class="btn-primary">+ Nuevo Producto</a>
             </div>
         </header>
 
@@ -234,7 +249,7 @@ try {
             <div class="card">
                 <h2 class="card-header">Listado de Productos</h2>
                 
-                <table class="data-table">
+               <table class="data-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -244,12 +259,12 @@ try {
                             <th>Proveedor</th>
                             <th>Precio</th>
                             <th>Stock / Mín.</th>
-                        </tr>
+                            <th>Acciones</th> </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($inventario)): ?>
                             <tr>
-                                <td colspan="7" style="text-align: center;">No se encontraron productos registrados.</td>
+                                <td colspan="8" style="text-align: center;">No se encontraron productos registrados.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($inventario as $item): ?>
@@ -262,6 +277,9 @@ try {
                                     <td>$<?php echo number_format($item['precio'], 2); ?></td>
                                     <td>
                                         <strong><?php echo htmlspecialchars($item['stock']); ?></strong> / <?php echo htmlspecialchars($item['min_stock']); ?>
+                                    </td>
+                                    <td>
+                                        <a href="producto_editar.php?id=<?php echo $item['id_producto']; ?>" class="btn-edit">Editar</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

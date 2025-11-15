@@ -60,16 +60,7 @@ try {
             --color-texto-secundario: #6c757d;
             --color-borde: #e9ecef;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            background-color: var(--color-fondo);
-            color: var(--color-texto);
-            display: flex;
-        }
-
-        /* CSS de .sidebar, .main-content, .card, .form-grid */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; background-color: var(--color-fondo); color: var(--color-texto); display: flex; }
         .sidebar { width: 240px; background-color: var(--color-blanco); border-right: 1px solid var(--color-borde); height: 100vh; display: flex; flex-direction: column; padding: 24px; box-sizing: border-box; position: fixed; left: 0; top: 0; }
         .sidebar-header { font-size: 24px; font-weight: 600; margin-bottom: 30px; }
         .sidebar-nav { flex-grow: 1; }
@@ -102,15 +93,10 @@ try {
         
     <aside class="sidebar">
         <div class="sidebar-header">Admin</div>
-        <nav class="sidebar-nav">
+         <nav class="sidebar-nav">
             <ul>
-                <li><a href="dashboard.php"><span>📊</span> Tablero</a></li>
-                <li><a href="../common/ordenes.php"><span>📦</span> Órdenes</a></li>
-                <li><a href="ventas.php"><span>💰</span> Ventas</a></li>
-                <li><a href="clientes.php" class="active"><span>👥</span> Clientes</a></li>
-                <li><a href="inventario.php"><span>🧾</span> Inventario</a></li>
-                <li><a href="../common/garantias.php"><span>🛡️</span> Garantías</a></li>
-                <li><a href="../admin/proveedores.php"><span>🚚</span> Proveedores</a></li>
+                <li><a href="javascript:history.back()">🔙 Volver atrás</a></li>
+
             </ul>
         </nav>
         <div class="sidebar-footer">
