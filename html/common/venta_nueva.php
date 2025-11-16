@@ -18,10 +18,11 @@ try {
 
     // Cargar productos (accesorios y dispositivos)
     $stmt_productos = $pdo->query("SELECT id_producto, nombre, precio, stock FROM producto 
-                                   WHERE tipo_producto IN ('accesorio', 'dispositivo') 
+                                   WHERE tipo_producto IN ('repuesto', 'accesorio', 'dispositivo') 
+                                   AND stock > 0
                                    ORDER BY nombre ASC");
+                                   
     $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
-    
     // Convertimos los productos a un formato JSON para JavaScript
     $productos_json = json_encode($productos);
 

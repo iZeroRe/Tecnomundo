@@ -9,15 +9,9 @@ if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     exit;
 }
 
-// Verificamos que los datos se hayan enviado por GET (desde el link <a>)
-/*if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    die("Acceso no autorizado.");
-}*/
-
-// Verificamos que se haya enviado un ID por GET
 if (!isset($_GET['venta_id']) || !is_numeric($_GET['venta_id'])) {
     $_SESSION['error_message'] = "Error: ID de venta no válido.";
-    header('Location: ../admin/ventas.php'); // Redirige a ventas
+    header('Location: ../common/ventas.php'); // Redirige a la lista
     exit;
 }
 $id_venta = $_GET['venta_id'];
@@ -95,7 +89,7 @@ try {
     $pdo->commit();
     
     $_SESSION['success_message'] = "¡Venta #" . $id_venta . " cobrada! Pago y garantía registrados con éxito.";
-    header('Location: ../admin/ventas.php'); // Redirige a ventas
+   header('Location: ../common/ventas.php'); // Redirige a ventas
     exit;
 
 } catch (Exception $e) {
@@ -103,7 +97,7 @@ try {
     $pdo->rollBack();
     
     $_SESSION['error_message'] = "Error al registrar el pago: " . $e->getMessage();
-    header('Location: ../admin/ventas.php'); // Redirige a ventas
+    header('Location: ../common/ventas.php'); // Redirige a ventas
     exit;
 }
 ?>

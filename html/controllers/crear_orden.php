@@ -24,59 +24,72 @@ $modelo = $_POST['modelo'];
 $falla = $_POST['falla'];
 // Para la pieza, verificamos si seleccionaron una o la dejaron en "opcional"
 $id_producto = !empty($_POST['id_producto']) ? $_POST['id_producto'] : null;
-$costo = $_POST['costo'];
 $fecha_promesa = $_POST['fecha_promesa'];
 // ID de que esta creando la orden
 $id_trabajador = $_SESSION['user_id'];
-
+// Recibimos el costo extra del formulario
+$costo_extra = (float)($_POST['costo_extra'] ?? 0);
+$precio_pieza = 0;
 // Enviar a la base de datos
 $pdo->beginTransaction();
 
-try{
-//Insert para el equipo
-    $sql_equipo = "INSERT INTO equipo (id_cliente, marca, modelo, observaciones, fecha) VALUES (?, ?, ?, ?, CURDATE())";
-    $stmt_equipo = $pdo->prepare($sql_equipo);
-    $stmt_equipo->execute([$id_cliente, $marca, $modelo, $falla]);
-    // ID del equipo recien creado
-    $id_nuevo_equipo = $pdo->lastInsertId(); //Problamente de error
-
-    $sql_reparacion = "INSERT INTO reparacion (id_equipo, id_trabajador, fecha_ingreso, fecha_terminado, costo) 
-                       VALUES (?, ?, CURDATE(), ?, ?)";
-    $stmt_reparacion = $pdo->prepare($sql_reparacion);
-    $stmt_reparacion->execute([$id_nuevo_equipo, $id_trabajador, $fecha_promesa, $costo]);
-    // ID reparacion
-    $id_nueva_reparacion = $pdo->lastInsertId();
-    // Insertar el dellate posible NULL
-    if($id_producto !== null){
-        // Verificar precios
+try {
+    
+    // --- PASO A: Obtener el precio de la pieza (SI SE SELECCIONÓ UNA) ---
+    if ($id_producto !== null) {
         $stmt_precio = $pdo->prepare("SELECT precio FROM producto WHERE id_producto = ?");
         $stmt_precio->execute([$id_producto]);
-        $precio_pieza = $stmt_precio->fetchColumn();
+        $precio_pieza_db = $stmt_precio->fetchColumn();
+        
+        if ($precio_pieza_db) {
+            $precio_pieza = (float)$precio_pieza_db;
+        }
+    }
+    
+    // --- PASO B: Calcular el Costo Total en el servidor ---
+    $costo_total_seguro = $precio_pieza + $costo_extra;
 
-        $subtotal_pieza = ($precio_pieza) ? $precio_pieza : 0;
+
+    // --- PASO C: Insertar el EQUIPO ---
+    $sql_equipo = "INSERT INTO equipo (id_cliente, marca, modelo, observaciones, fecha) 
+                   VALUES (?, ?, ?, ?, CURDATE())";
+    
+    $stmt_equipo = $pdo->prepare($sql_equipo);
+    $stmt_equipo->execute([$id_cliente, $marca, $modelo, $falla]);
+    $id_nuevo_equipo = $pdo->lastInsertId();
+
+    // --- PASO D: Insertar la REPARACIÓN (con el costo seguro) ---
+    $sql_reparacion = "INSERT INTO reparacion (id_equipo, id_trabajador, fecha_ingreso, fecha_terminado, costo) 
+                       VALUES (?, ?, CURDATE(), ?, ?)";
+    
+    $stmt_reparacion = $pdo->prepare($sql_reparacion);
+    // Usamos $costo_total_seguro en lugar de lo que venía de $_POST
+    $stmt_reparacion->execute([$id_nuevo_equipo, $id_trabajador, $fecha_promesa, $costo_total_seguro]);
+    $id_nueva_reparacion = $pdo->lastInsertId();
+
+    // --- PASO E: Insertar el DETALLE (Opcional) ---
+    if ($id_producto !== null) {
         $sql_detalle = "INSERT INTO detalle_reparacion (id_reparacion, id_producto, cantidad, subtotal) 
                         VALUES (?, ?, 1, ?)";
         $stmt_detalle = $pdo->prepare($sql_detalle);
-        $stmt_detalle->execute([$id_nueva_reparacion, $id_producto, $subtotal_pieza]);
+        // Usamos $precio_pieza que ya obtuvimos
+        $stmt_detalle->execute([$id_nueva_reparacion, $id_producto, $precio_pieza]);
     }
 
-    //Confirmacion de transaccion a la BD
+    // --- 4. Confirmar la Transacción ---
     $pdo->commit();
-    $_SESSION['success_message'] = "¡Orden #" . $id_nueva_reparacion . "creada con éxito!";
-
-    // Regreso al dashboard
-    header('Location: ../admin/dashboard.php');
+    
+    $_SESSION['success_message'] = "¡Orden #" . $id_nueva_reparacion . " creada con éxito!";
+    
+    // Redirigir de vuelta a la lista de órdenes
+    header('Location: ../common/ordenes.php');
     exit;
-}
-catch (PDOException $e) {
-    // Por si algo falla reacemos los cambios
+
+} catch (PDOException $e) {
+    // --- 5. Manejo de Errores ---
     $pdo->rollBack();
-
-    //Mensaje de error
-    $_SESSION['error_message'] = "Error para guardar la orden:" . $e->getMessage();
-
-    // Redirigimos de vuelta al formulario de nueva orden
-    header('Location: ../admin/nueva_orden.php');
+    $_SESSION['error_message'] = "Error al guardar la orden: " . $e->getMessage();
+    header('Location: ../common/nueva_orden.php');
     exit;
 }
 ?>

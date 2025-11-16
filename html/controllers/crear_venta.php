@@ -10,7 +10,6 @@ if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
 }
 // CAMBIO: Obtenemos el ID del trabajador
 $id_trabajador_actual = $_SESSION['user_id']; 
-
 // --- Fin Bloque de Seguridad ---
 
 // Verificar que los datos vienen por POST
@@ -25,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // Validaciones básicas
     if (empty($id_cliente) || empty($id_productos)) {
+        // CAMBIO: Redirige al formulario 'common'
         $_SESSION['error_message'] = "Error: Faltan datos del cliente o productos.";
         header('Location: ../common/venta_nueva.php');
         exit;
@@ -64,7 +64,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // --- PASO 2: Insertar la venta principal ---
         // CAMBIO: Añadimos id_trabajador y el id_producto de la tabla 'venta' lo ponemos NULL
-        // (ya que ahora el detalle tiene los productos)
         $stmt_venta = $pdo->prepare("INSERT INTO venta (id_cliente, id_producto, fecha_venta, total, id_trabajador) 
                                      VALUES (?, NULL, CURDATE(), ?, ?)");
         $stmt_venta->execute([$id_cliente, $total_calculado, $id_trabajador_actual]);
@@ -77,7 +76,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $id_prod = $id_productos[$i];
             $cantidad = (int) $cantidades[$i];
             
-            // Re-consultar el precio (o usar el de la validación anterior)
             $stmt_price = $pdo->prepare("SELECT precio FROM producto WHERE id_producto = ?");
             $stmt_price->execute([$id_prod]);
             $precio_unit = $stmt_price->fetchColumn();
