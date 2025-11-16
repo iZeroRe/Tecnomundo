@@ -413,7 +413,7 @@ try {
             <ul>
                 <li><a href="#" class="active"><span>📊</span> Tablero</a></li>
                 <li><a href="../common/ordenes.php"><span>📦</span> Órdenes</a></li>
-                <li><a href="ventas.php"><span>💰</span> Ventas</a></li>
+                <li><a href="../common/ventas.php"><span>💰</span> Ventas</a></li>
                 <li><a href="../admin/clientes.php"><span>👥</span> Clientes</a></li>
                 <li><a href="../admin/inventario.php"><span>🧾</span> Inventario</a></li>
                 <li><a href="../common/garantias.php"><span>🛡️</span> Garantías</a></li>
@@ -437,7 +437,7 @@ try {
                 <div class="search-bar">
                     <input type="text" placeholder="Buscar orden, cliente, IMEI...">
                 </div>
-                <a href="nueva_orden.php" class="btn-primary">+ Nueva orden</a>
+                <a href="../common/nueva_orden.php" class="btn-primary">+ Nueva orden</a>
             </div>
         </header>
 

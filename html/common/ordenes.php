@@ -1,20 +1,19 @@
 <?php
 session_start();
 
-// 1. Verificar si el usuario ha iniciado sesión
+//Verificar el iniciado sesion
 if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
-    header('Location: /login.php'); // Redirigir a login si no está logueado
+    header('Location: /login.php');
     exit;
 }
-
-// --- Si el script llega aquí, es un admin validado ---
+$user_rol = $_SESSION['user_rol'];
+$id_trabajador_actual = $_SESSION['user_id'];
 require '../config/conexion.php';
 
 
-// 3. Ejecutamos la consulta para OBTENER LAS ÓRDENES
+//Ejecutamos la consulta para OBTENER LAS ÓRDENES
 try {
-    // Esta consulta une 4 tablas para obtener la información completa
-    $sql = "SELECT 
+    $sql_base = "SELECT 
                 r.id_reparacion,
                 r.fecha_ingreso,
                 r.fecha_terminado,
@@ -28,14 +27,25 @@ try {
             FROM reparacion AS r
             JOIN equipo AS e ON r.id_equipo = e.id_equipo
             JOIN cliente AS c ON e.id_cliente = c.id_cliente
-            JOIN trabajador AS t ON r.id_trabajador = t.id_trabajador
-            ORDER BY r.fecha_ingreso DESC"; // Mostrar las más nuevas primero
+            JOIN trabajador AS t ON r.id_trabajador = t.id_trabajador";
             
-    $stmt_ordenes = $pdo->query($sql);
+    $params = []; // Un array para guardar los parámetros
+
+    // Si el usuario es un trabajador, añadimos un WHERE para filtrar
+    if ($user_rol === 'trabajador') {
+        // Ahora $sql_base SÍ existe y podemos añadirle el WHERE
+        $sql_base .= " WHERE r.id_trabajador = ?";
+        $params[] = $id_trabajador_actual; // Añadimos el ID al array de parámetros
+    }
+    // Así funciona con o sin el WHERE
+    $sql_base .= " ORDER BY r.fecha_ingreso DESC";
+    
+    // Preparamos y ejecutamos la consulta
+    $stmt_ordenes = $pdo->prepare($sql_base);
+    $stmt_ordenes->execute($params); // Ejecutamos con los parámetros (estará vacío si es admin)
     $ordenes = $stmt_ordenes->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (\PDOException $e) {
-    // Manejo simple de errores
     echo "Error al consultar la base de datos: " . $e->getMessage();
     die();
 }
@@ -193,14 +203,14 @@ try {
             font-weight: 600;
         }
 
-        /* --- NUEVO ESTILO PARA EL BOTÓN PDF --- */
+        /* PDF boton*/
         .btn-pdf {
             display: inline-block;
             padding: 6px 10px;
             font-size: 12px;
             font-weight: 500;
             color: #fff;
-            background-color: #dc3545; /* Color rojo para PDF */
+            background-color: #dc3545; 
             border: none;
             border-radius: 4px;
             text-decoration: none;
@@ -238,57 +248,68 @@ try {
 <body>
         
     <aside class="sidebar">
-        <div class="sidebar-header">
-            Admin
-        </div>
-
-        <nav class="sidebar-nav">
-            <ul>
-                <li><a href="javascript:history.back()">🔙 Volver atrás</a></li>
-
-            </ul>
-        </nav>
-
+        <?php if ($user_rol == 'admin'): ?>
+            <div class="sidebar-header">Admin</div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="../admin/dashboard.php"><span>📊</span> Tablero</a></li>
+                    <li><a href="ordenes.php" class="active"><span>📦</span> Órdenes</a></li>
+                    <li><a href="../admin/ventas.php"><span>💰</span> Ventas</a></li>
+                    <li><a href="../admin/clientes.php"><span>👥</span> Clientes</a></li>
+                    <li><a href="../admin/inventario.php"><span>🧾</span> Inventario</a></li>
+                    <li><a href="garantias.php"><span>🛡️</span> Garantías</a></li>
+                    <li><a href="../admin/proveedores.php"><span>🚚</span> Proveedores</a></li>
+                    <li><a href="../admin/trabajadores.php"><span>👨</span> Trabajadores</a></li>
+                </ul>
+            </nav>
+        
+        <?php else: ?>
+            <div class="sidebar-header">Trabajador</div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="../trabajador/dashboard.php"><span>📊</span> Tablero</a></li>
+                    <li><a href="ventas.php"><span>💰</span> Ventas</a></li>
+                    <li><a href="ordenes.php" class="active"><span>📦</span> Órdenes</a></li>
+                    <li><a href="garantias.php"><span>🛡️</span> Garantías</a></li>
+                    <li><a href="../common/nuevo_cliente.php"><span>👥</span> Nuevo Cliente</a></li>
+                </ul>
+            </nav>
+        <?php endif; ?>
+        
         <div class="sidebar-footer">
-            <a href="/controllers/logout.php">
-                <span>🚪</span> Cerrar sesión
-            </a>
+            <a href="/controllers/logout.php"><span>🚪</span> Cerrar sesión</a>
         </div>
     </aside>
 
     <main class="main-content">
 
         <header class="main-header">
-            <h1>Órdenes de Reparación</h1>
+            <h1><?php echo ($user_rol == 'admin') ? 'Historial de Órdenes' : 'Mis Órdenes'; ?></h1>
             <div class="header-actions">
                 <div class="search-bar">
                     <input type="text" placeholder="Buscar orden, cliente, IMEI...">
                 </div>
-               <a href="../admin/nueva_orden.php" class="btn-primary">+ Nueva orden</a>
+                <a href="nueva_orden.php" class="btn-primary">+ Nueva orden</a>
             </div>
         </header>
 
-        <section class="orders-content">
-            <?php 
-    // Mensaje de Cobro de la orden 
-    if (isset($_SESSION['success_message'])) {
-        echo '<div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">';
-        echo htmlspecialchars($_SESSION['success_message']);
-        echo '</div>';
-        unset($_SESSION['success_message']);
-    }
+        <?php 
+        if (isset($_SESSION['success_message'])) {
+            echo '<div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">';
+            echo htmlspecialchars($_SESSION['success_message']);
+            echo '</div>';
+            unset($_SESSION['success_message']);
+        }
+        if (isset($_SESSION['error_message'])) {
+            echo '<div style="background-color: #fdeded; color: #b91c1c; border: 1px solid #f8b4b4; padding: 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">';
+            echo htmlspecialchars($_SESSION['error_message']);
+            echo '</div>';
+            unset($_SESSION['error_message']);
+        }
+        ?>
 
-    // Mensaje en caso de que ya fuera cobrada esa orden 
-    if (isset($_SESSION['error_message'])) {
-        echo '<div style="background-color: #fdeded; color: #b91c1c; border: 1px solid #f8b4b4; padding: 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">';
-        echo htmlspecialchars($_SESSION['error_message']);
-        echo '</div>';
-        unset($_SESSION['error_message']);
-    }
-    ?>
+        <section class="ordenes-content">
             <div class="card">
-                <h2 class="card-header">Historial de Órdenes</h2>
-                
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -298,12 +319,14 @@ try {
                             <th>Técnico</th>
                             <th>Fecha Ingreso</th>
                             <th>Costo</th>
-                            <th>Acciones</th> </tr>
+                            <th>Acciones</th>
+                        </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($ordenes)): ?>
                             <tr>
-                                <td colspan="8" style="text-align: center;">No se encontraron órdenes de reparación.</td> </tr>
+                                <td colspan="7" style="text-align: center;">No se encontraron órdenes de reparación.</td>
+                            </tr>
                         <?php else: ?>
                             <?php foreach ($ordenes as $orden): ?>
                                 <tr>
@@ -313,14 +336,9 @@ try {
                                     <td><?php echo htmlspecialchars($orden['tecnico_nombre'] . ' ' . $orden['tecnico_apellido']); ?></td>
                                     <td><?php echo htmlspecialchars($orden['fecha_ingreso']); ?></td>
                                     <td>$<?php echo number_format($orden['costo'], 2); ?></td>
-                                    <td class="acciones-cell"> 
-                                        <a href="../common/generar_factura.php?id=<?php echo $orden['id_reparacion']; ?>" 
-                                        class="btn-pdf" 
-                                        target="_blank">PDF</a>
-                                        <a href="../controllers/registrar_pago_y_garantia.php?reparacion_id=<?php echo $orden['id_reparacion']; ?>" 
-                                        class="btn-cobrar">
-                                        Cobrar
-                                        </a>
+                                    <td class="acciones-cell">
+                                        <a href="../common/generar_factura.php?id=<?php echo $orden['id_reparacion']; ?>" class="btn-pdf" target="_blank">PDF</a>
+                                        <a href="../controllers/registrar_pago_y_garantia.php?reparacion_id=<?php echo $orden['id_reparacion']; ?>" class="btn-cobrar">Cobrar</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

@@ -2,11 +2,11 @@
 session_start();
 
 // 1 Verificacion de inicio de sesion
-if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
+if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     header('Location: /login.php');
     exit;
 }
-
+$user_rol = $_SESSION['user_rol'];
 
 require '../config/conexion.php';
 
@@ -238,28 +238,53 @@ catch (\PDOException $e) {
 </head>
 <body>
 
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            Admin
-        </div>
-          <nav class="sidebar-nav">
-            <ul>
-                <li><a href="javascript:history.back()">🔙 Volver atrás</a></li>
-
-            </ul>
-        </nav>
-
+<aside class="sidebar">
+        <?php if ($user_rol == 'admin'): ?>
+            <div class="sidebar-header">Admin</div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="../admin/dashboard.php"><span>📊</span> Tablero</a></li>
+                    <li><a href="ordenes.php" class="active"><span>📦</span> Órdenes</a></li>
+                    <li><a href="../admin/ventas.php"><span>💰</span> Ventas</a></li>
+                    <li><a href="../admin/clientes.php"><span>👥</span> Clientes</a></li>
+                    <li><a href="../admin/inventario.php"><span>🧾</span> Inventario</a></li>
+                    <li><a href="garantias.php"><span>🛡️</span> Garantías</a></li>
+                    <li><a href="../admin/proveedores.php"><span>🚚</span> Proveedores</a></li>
+                    <li><a href="../admin/trabajadores.php"><span>👨</span> Trabajadores</a></li>
+                </ul>
+            </nav>
+        
+        <?php else: ?>
+            <div class="sidebar-header">Trabajador</div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="../trabajador/dashboard.php"><span>📊</span> Tablero</a></li>
+                    <li><a href="../admin/venta_nueva.php"><span>💰</span> Nueva Venta</a></li>
+                    <li><a href="ordenes.php" class="active"><span>📦</span> Órdenes</a></li>
+                    <li><a href="garantias.php"><span>🛡️</span> Garantías</a></li>
+                    <li><a href="../common/nuevo_cliente.php"><span>👥</span> Nuevo Cliente</a></li>
+                </ul>
+            </nav>
+        <?php endif; ?>
         <div class="sidebar-footer">
-            <a href="/controllers/logout.php">
-                <span>🚪</span> Cerrar sesión
-            </a>
+            <a href="/controllers/logout.php"><span>🚪</span> Cerrar sesión</a>
         </div>
     </aside>
 
     <main class="main-content">
+
         <header class="main-header">
             <h1>Nueva orden de reparación</h1>
         </header>
+
+        <?php 
+        if (isset($_SESSION['error_message'])) {
+            echo '<div style="background-color: #fdeded; color: #b91c1c; border: 1px solid #f8b4b4; padding: 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">';
+            echo htmlspecialchars($_SESSION['error_message']);
+            echo '</div>';
+            unset($_SESSION['error_message']);
+        }
+        ?>
 
         <div class="card">
             <form action="../controllers/crear_orden.php" method="POST">
@@ -282,7 +307,6 @@ catch (\PDOException $e) {
                         <label for="marca">Marca</label>
                         <input type="text" name="marca" id="marca" class="form-control" placeholder="Ej. Apple, Samsung" required>
                     </div>
-
                     <div class="form-group">
                         <label for="modelo">Modelo</label>
                         <input type="text" name="modelo" id="modelo" class="form-control" placeholder="Ej. iPhone 13 Pro, Galaxy S22" required>
@@ -316,13 +340,14 @@ catch (\PDOException $e) {
                     </div>
                     
                     <div class="form-actions">
-                        <a href="dashboard.php" class="btn btn-secondary">Cancelar</a>
+                        <a href="<?php echo ($user_rol == 'admin') ? '../admin/dashboard.php' : '../trabajador/dashboard.php'; ?>" class="btn btn-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary">Guardar Orden</button>
                     </div>
 
                 </div>
             </form>
         </div>
+
     </main>
     
 </body>

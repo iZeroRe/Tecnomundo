@@ -3,7 +3,7 @@ session_start();
 require '../config/conexion.php'; // Incluimos la conexión a la BD
 
 // Verificar al admin
-if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true || $_SESSION['user_rol'] !== 'admin') {
+if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     header('Location: /login.php');
     exit;
 }

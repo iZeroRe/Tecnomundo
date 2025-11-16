@@ -2,43 +2,88 @@
 require '../config/conexion.php'; 
 session_start();
 
-//  Verificar si el usuario ha iniciado sesión
+// Verificación de Sesion
 if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
-    header('Location: /login.php'); // Redirigir a login si no está logueado
+    header('Location: /login.php');
     exit;
 }
 
 //  Verificar si el rol es 'trabajador'
 if ($_SESSION['user_rol'] !== 'trabajador') {
-    header('Location: ../admin/dashboard.php'); // Si es admin, a su dashboard
+    header('Location: ../admin/dashboard.php');
     exit;
 }
+$id_trabajador_actual = $_SESSION['user_id'];
 
-
-
-
-// Ejecutamos todas las consultas para las tarjetas
+// Ejecutamos todas las consultas personalizadas dependiendo del id
 try {
-    // Tarjeta 1: Órdenes activas (Contamos el total de reparaciones)
-    $stmt_ordenes = $pdo->query("SELECT COUNT(*) FROM reparacion");
+    // 1 Ordenes activas 
+    $sql_ordenes = "SELECT COUNT(*) FROM reparacion 
+                    WHERE id_trabajador = ? 
+                    AND (fecha_terminado >= CURDATE() OR fecha_terminado IS NULL)";
+    $stmt_ordenes = $pdo->prepare($sql_ordenes);
+    $stmt_ordenes->execute([$id_trabajador_actual]);
     $total_ordenes = $stmt_ordenes->fetchColumn();
 
-    // Tarjeta 2: Por entregar hoy (Reparaciones con fecha_terminado = hoy)
-    $stmt_hoy = $pdo->query("SELECT COUNT(*) FROM reparacion WHERE fecha_terminado = CURDATE()");
+    // 2 Por entregar hoy 
+    $sql_hoy = "SELECT COUNT(*) FROM reparacion 
+                WHERE id_trabajador = ? AND fecha_terminado = CURDATE()";
+    $stmt_hoy = $pdo->prepare($sql_hoy);
+    $stmt_hoy->execute([$id_trabajador_actual]);
     $total_hoy = $stmt_hoy->fetchColumn();
-
-    // Tarjeta 3: Reclamos (Contamos el total de garantías emitidas)
-    $stmt_reclamos = $pdo->query("SELECT COUNT(*) FROM garantia");
+    
+    // 3 Garantias
+    $sql_reclamos = "SELECT COUNT(g.id_garantia) 
+                     FROM garantia AS g
+                     JOIN reparacion AS r ON g.id_reparacion = r.id_reparacion
+                     WHERE r.id_trabajador = ?";
+    $stmt_reclamos = $pdo->prepare($sql_reclamos);
+    $stmt_reclamos->execute([$id_trabajador_actual]);
     $total_reclamos = $stmt_reclamos->fetchColumn();
 
-    // Tarjeta 4: Ingresos del mes (Sumamos pagos de este mes y año)
-    $stmt_ingresos = $pdo->query("SELECT SUM(monto_pago) as total_mes FROM pago WHERE MONTH(fecha_pago) = MONTH(CURDATE()) AND YEAR(fecha_pago) = YEAR(CURDATE())");
-    $ingresos_mes = $stmt_ingresos->fetch();
-    $total_ingresos = $ingresos_mes['total_mes'] ?? 0; // Usamos ?? 0 por si no hay pagos
+    // Gráfica 1: Actividad Semanal (SOLO de este trabajador)
+    $sql_semanal = "SELECT 
+                        DATE(fecha_ingreso) as dia, 
+                        COUNT(*) as total 
+                    FROM reparacion 
+                    WHERE fecha_ingreso >= CURDATE() - INTERVAL 6 DAY
+                    AND id_trabajador = ?
+                    GROUP BY dia
+                    ORDER BY dia ASC";
+    $stmt_semanal = $pdo->prepare($sql_semanal);
+    $stmt_semanal->execute([$id_trabajador_actual]);
+    $actividad_semanal = $stmt_semanal->fetchAll(PDO::FETCH_ASSOC);
+
+    // (Procesamiento de datos de la gráfica - esto está bien)
+    $labels_semana = [];
+    $data_semana = [];
+    $datos_por_fecha = array_column($actividad_semanal, 'total', 'dia');
+    for ($i = 7; $i >= 0; $i--) {
+        $fecha = date('Y-m-d', strtotime("-$i days"));
+        $labels_semana[] = date('D d', strtotime($fecha)); 
+        $data_semana[] = $datos_por_fecha[$fecha] ?? 0;
+    }
+
+    // NUEVA CONSULTA: Mis ordenes pendientes usando join
+    $sql_pendientes = "SELECT
+                            r.id_reparacion,
+                            c.nombre AS cliente_nombre,
+                            c.apellido AS cliente_apellido,
+                            e.marca,
+                            e.modelo
+                       FROM reparacion AS r
+                       JOIN equipo AS e ON r.id_equipo = e.id_equipo 
+                       JOIN cliente AS c ON e.id_cliente = c.id_cliente
+                       WHERE r.id_trabajador = ?
+                       AND (r.fecha_terminado >= CURDATE() OR r.fecha_terminado IS NULL)
+                       ORDER BY r.fecha_terminado ASC
+                       LIMIT 10"; // limitamos a 10
+    $stmt_pendientes = $pdo->prepare($sql_pendientes);
+    $stmt_pendientes->execute([$id_trabajador_actual]);
+    $ordenes_pendientes = $stmt_pendientes->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (\PDOException $e) {
-    // Manejo simple de errores
-    echo "Error al consultar la base de datos: " . $e->getMessage();
+    echo "Error al consultar la base de datos: " . $e->getMessage(); //Erro
     die();
 }
 ?>
@@ -356,20 +401,22 @@ try {
             color: var(--color-texto-secundario);
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
         
     <aside class="sidebar">
         <div class="sidebar-header">
-            Admin
+            Trabajador
         </div>
 
         <nav class="sidebar-nav">
             <ul>
                 <li><a href="#" class="active"><span>📊</span> Tablero</a></li>
-                                <li><a href="ventas.php"><span>💰</span>Nueva Venta</a></li>
+                <li><a href="../common/ventas.php"><span>💰</span> Ventas</a></li>
                 <li><a href="../common/ordenes.php"><span>📦</span> Órdenes</a></li>
                 <li><a href="../common/garantias.php"><span>🛡️</span> Garantías</a></li>
+                <li><a href="../common/nuevo_cliente.php"><span>👥</span> Nuevo Cliente</a></li>
             </ul>
         </nav>
 
@@ -388,7 +435,7 @@ try {
                 <div class="search-bar">
                     <input type="text" placeholder="Buscar orden, cliente, IMEI...">
                 </div>
-                               <a href="../admin/nueva_orden.php" class="btn-primary">+ Nueva orden</a>
+                <a href="../common/nueva_orden.php" class="btn-primary">+ Nueva orden</a>
             </div>
         </header>
 
@@ -411,76 +458,49 @@ try {
             </div>
             
             <div class="stat-card">
-                <div class="icon">⚠️</div>
+                <div class="icon">🛡️</div>
                 <div class="info">
                     <h3><?php echo $total_reclamos; ?></h3>
-                    <p>Reclamos</p>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="icon">💵</div>
-                <div class="info">
-                    <h3>$<?php echo number_format($total_ingresos, 2); ?></h3>
-                    <p>Ingresos mes</p>
+                    <p>Garantias</p>
                 </div>
             </div>
 
         </section>
 
+</section>
+
         <section class="dashboard-body">
 
             <div class="main-chart-area">
                 <div class="card">
-                    <h2 class="card-header">Actividad semanal</h2>
-                    <div class="chart-placeholder">
-                                                <p>(Aquí se necesita JavaScript para la gráfica)</p>
+                    <h2 class="card-header">Mi Actividad semanal</h2>
+                    <div class="chart-container" style="position: relative; height:350px;">
+                        <canvas id="actividadSemanalChart"></canvas>
                     </div>
                 </div>
             </div>
 
             <div class="right-sidebar">
-                
                 <div class="card">
-                    <div class="pie-chart-placeholder">
-                                                <p>(Aquí se necesita JavaScript para la gráfica)</p>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h2 class="card-header">Alertas de inventario</h2>
-                    <ul class="alert-list">
-  
-    <ul class="alert-list">
-     <?php
-    /*
-    * Consulta súper rápida.
-    * Solo pedimos los productos que NO TENGAN NULL
-    * en la columna 'nivel_alerta'.
-    */
-    $stmt_stock = $pdo->query("SELECT nombre, stock, min_stock, nivel_alerta
-                              FROM producto
-                              WHERE nivel_alerta IS NOT NULL
-                              ORDER BY stock ASC");
-    
-    while ($item = $stmt_stock->fetch()) {
-        
-        // La clase ('low' o 'critical') ya viene calculada
-        // desde la base de datos.
-        $alert_class = $item['nivel_alerta'];
-        
-        echo '<li class="alert-item ' . $alert_class . '">';
-        echo '  <div class="details">';
-        echo '      <p>' . htmlspecialchars($item['nombre']) . '</p>';
-        echo '  </div>';
-        echo '  <div class="stock">';
-        echo '      <div class="current">Stock: ' . $item['stock'] . '</div>';
-        echo '      <div class="min">Min: ' . $item['min_stock'] . '</div>';
-        echo '  </div>';
-        echo '</li>';
-    }
-    ?>
-</ul>
+                    <h2 class="card-header">Mis Órdenes Pendientes</h2>
+                    
+                    <ul class="pending-list">
+                        <?php if (empty($ordenes_pendientes)): ?>
+                            <li style="text-align: center; color: var(--color-texto-secundario); font-size: 14px;">
+                                ¡No tienes órdenes pendientes!
+                            </li>
+                        <?php else: ?>
+                            <?php foreach ($ordenes_pendientes as $orden): ?>
+                                <li class="pending-item">
+                                    <div class="details">
+                                        <p><?php echo htmlspecialchars($orden['cliente_nombre'] . ' ' . $orden['cliente_apellido']); ?></p>
+                                        <span class="subtext"><?php echo htmlspecialchars($orden['marca'] . ' ' . $orden['modelo']); ?></span>
+                                    </div>
+                                    <span class="folio">#<?php echo $orden['id_reparacion']; ?></span>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </ul>
 
                 </div>
             </div>
@@ -489,8 +509,33 @@ try {
 
     </main>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        
+        //Grafica 1 Activdad semanal
+        const ctxSemanal = document.getElementById('actividadSemanalChart');
+        if (ctxSemanal) {
+            new Chart(ctxSemanal, {
+                type: 'line',
+                data: {
+                    // Usamos los datos PHP que ahora estan personalizados
+                    labels: <?php echo json_encode($labels_semana); ?>,
+                    datasets: [{
+                        label: 'Órdenes Creadas',
+                        data: <?php echo json_encode($data_semana); ?>,
+                        fill: false,
+                        borderColor: '#0d6efd',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+    });
+    </script>
 </body>
 </html>
-
-
-?>

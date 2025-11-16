@@ -3,8 +3,7 @@ session_start();
 require '../config/conexion.php';
 
 //Verificar inicio de sesion
-if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true || $_SESSION['user_rol'] !== 'admin') {
-    // Si no es admin, lo sacamos.
+if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     header('Location: /login.php');
     exit;
 }
