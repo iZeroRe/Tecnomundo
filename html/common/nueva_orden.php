@@ -101,16 +101,12 @@ try {
             </nav>
         <?php else: ?>
             <div class="sidebar-header">Trabajador</div>
-            <nav class="sidebar-nav">
-                <ul>
-                    <li><a href="../trabajador/dashboard.php"><span>📊</span> Tablero</a></li>
-                    <li><a href="venta_nueva.php"><span>💰</span> Nueva Venta</a></li>
-                    <li><a href="ordenes.php" class="active"><span>📦</span> Órdenes</a></li>
-                    <li><a href="ventas.php"><span>💰</span> Ventas</a></li>
-                    <li><a href="garantias.php"><span>🛡️</span> Garantías</a></li>
-                    <li><a href="nuevo_cliente.php"><span>👥</span> Nuevo Cliente</a></li> 
-                </ul>
-            </nav>
+             <nav class="sidebar-nav">
+            <ul>
+                <li><a href="javascript:history.back()">🔙 Volver atrás</a></li>
+
+            </ul>
+        </nav>
         <?php endif; ?>
         
         <div class="sidebar-footer">
