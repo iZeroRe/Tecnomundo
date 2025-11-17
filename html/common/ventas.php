@@ -230,7 +230,7 @@ try {
             <nav class="sidebar-nav">
                 <ul>
                     <li><a href="../trabajador/dashboard.php"><span>📊</span> Tablero</a></li>
-                    <li><a href="ventas.php" class="active"><span>💰</span> Ventas</a></li> 
+                    <li><a href="../common/ventas.php"><span>💰</span> Ventas</a></li> 
                     <li><a href="ordenes.php"><span>📦</span> Órdenes</a></li>
                     <li><a href="garantias.php"><span>🛡️</span> Garantías</a></li>
                     <li><a href="../common/nuevo_cliente.php"><span>👥</span> Nuevo Cliente</a></li>
