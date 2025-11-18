@@ -531,7 +531,7 @@ try {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } }
+                    scales: { y: { beginAtZero: true, max :10 } }
                 }
             });
         }

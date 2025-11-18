@@ -566,7 +566,8 @@ try {
                     maintainAspectRatio: false, // Permite que la altura sea personalizada
                     scales: {
                         y: {
-                            beginAtZero: true // El eje Y empieza en 0
+                            beginAtZero: true, 
+                            max: 10 // El eje Y empieza en 0 y termian en 10
                         }
                     }
                 }
