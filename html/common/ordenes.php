@@ -254,7 +254,7 @@ try {
                 <ul>
                     <li><a href="../admin/dashboard.php"><span>📊</span> Tablero</a></li>
                     <li><a href="ordenes.php" class="active"><span>📦</span> Órdenes</a></li>
-                    <li><a href="../admin/ventas.php"><span>💰</span> Ventas</a></li>
+                    <li><a href="ventas.php"><span>💰</span> Ventas</a></li>
                     <li><a href="../admin/clientes.php"><span>👥</span> Clientes</a></li>
                     <li><a href="../admin/inventario.php"><span>🧾</span> Inventario</a></li>
                     <li><a href="garantias.php"><span>🛡️</span> Garantías</a></li>
