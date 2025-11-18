@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: db
--- Tiempo de generación: 16-11-2025 a las 20:52:12
+-- Tiempo de generación: 18-11-2025 a las 04:16:02
 -- Versión del servidor: 10.5.29-MariaDB-ubu2004
 -- Versión de PHP: 8.3.26
 
@@ -337,7 +337,7 @@ INSERT INTO `producto` (`id_producto`, `id_proveedor`, `nombre`, `marca`, `model
 --
 DELIMITER $$
 CREATE TRIGGER `trg_before_producto_insert` BEFORE INSERT ON `producto` FOR EACH ROW BEGIN
-    -- Usa la misma lógica para productos nuevos
+    
     SET NEW.nivel_alerta = CASE
         WHEN NEW.stock <= 3 THEN 'critical'
         WHEN NEW.stock = 4 THEN 'low'
@@ -350,12 +350,12 @@ $$
 DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `trg_before_producto_update` BEFORE UPDATE ON `producto` FOR EACH ROW BEGIN
-    -- Define el 'nivel_alerta' basado en el nuevo stock
+    
     SET NEW.nivel_alerta = CASE
         WHEN NEW.stock <= 3 THEN 'critical'
         WHEN NEW.stock = 4 THEN 'low'
         WHEN NEW.stock = 5 THEN 'low'
-        ELSE NULL -- Si es 6 o más, el campo es NULL (sin alerta)
+        ELSE NULL 
     END;
 END
 $$
@@ -372,7 +372,7 @@ CREATE TABLE `proveedor` (
   `id_empresa` int(11) NOT NULL,
   `nombre` varchar(100) NOT NULL,
   `pieza_accesorio` varchar(100) NOT NULL,
-  `telefono` int(10) NOT NULL,
+  `telefono` varchar(20) NOT NULL,
   `correo` varchar(100) NOT NULL,
   `direccion` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -382,13 +382,13 @@ CREATE TABLE `proveedor` (
 --
 
 INSERT INTO `proveedor` (`id_proveedor`, `id_empresa`, `nombre`, `pieza_accesorio`, `telefono`, `correo`, `direccion`) VALUES
-(1, 1, 'Global Parts Center', 'Pieza', 331234568, 'ventas@globalparts.com', 'Calle de la Tecnología 123, Zapopan'),
-(2, 1, 'MobiAccesorios GDL', 'Accesorio', 339876532, 'contacto@mobiacc.mx', 'Av. Innovación 45, Guadalajara'),
-(3, 1, 'TodoComponentes SA', 'Pieza y Accesorio', 335566788, 'info@todocomponentes.com', 'Industria Electrónica 90, Tlaquepaque'),
-(4, 2, 'FixIt Supplies', 'Pieza', 551122334, 'support@fixit.com', 'Reforma 222, CDMX'),
-(5, 2, 'Case & Cover World', 'Accesorio', 558776655, 'pedidos@caseworld.com', 'Insurgentes Sur 100, CDMX'),
-(6, 3, 'Repuestos Express MTY', 'Pieza', 811234976, 'mty@repuestosexpress.com', 'Av. Constitución 500, Monterrey'),
-(7, 3, 'Tech Gadgets Pro', 'Accesorio', 816543198, 'pro@techgadgets.net', 'Calzada del Valle 32, San Pedro');
+(1, 1, 'Global Parts Center', 'Pieza', '331234568', 'ventas@globalparts.com', 'Calle de la Tecnología 123, Zapopan'),
+(2, 1, 'MobiAccesorios GDL', 'Accesorio', '339876532', 'contacto@mobiacc.mx', 'Av. Innovación 45, Guadalajara'),
+(3, 1, 'TodoComponentes SA', 'Pieza y Accesorio', '335566788', 'info@todocomponentes.com', 'Industria Electrónica 90, Tlaquepaque'),
+(4, 2, 'FixIt Supplies', 'Pieza', '551122334', 'support@fixit.com', 'Reforma 222, CDMX'),
+(5, 2, 'Case', 'Accesorio', '558776655', 'pedidos@caseworld.com', 'Insurgentes Sur 100, CDMX'),
+(6, 3, 'Repuestos Express MTY', 'Pieza', '811234976', 'mty@repuestosexpress.com', 'Av. Constitución 500, Monterrey'),
+(7, 3, 'Tech Gadgets Pro', 'Accesorio', '816543198', 'pro@techgadgets.net', 'Calzada del Valle 32, San Pedro');
 
 -- --------------------------------------------------------
 
@@ -658,7 +658,7 @@ ALTER TABLE `producto`
 -- AUTO_INCREMENT de la tabla `proveedor`
 --
 ALTER TABLE `proveedor`
-  MODIFY `id_proveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_proveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `reparacion`
